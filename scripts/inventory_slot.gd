@@ -1,5 +1,7 @@
+# Description: This component acts as a single inventory slot and is loaded from the inventory.gd file
 extends PanelContainer
 
+# Singal
 signal item_pressed(slot)
 
 var item = null
@@ -28,6 +30,7 @@ func set_item(item_id: String, texture: Texture):
 	item = TextureRect.new()
 	item.texture = texture
 	item.visible = true
+	# tell the Control node to ignor mouse events
 	item.mouse_filter = MOUSE_FILTER_IGNORE
 	item.name = item_id
 	item.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL

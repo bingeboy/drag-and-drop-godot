@@ -2,10 +2,10 @@
 # Manages the inventory, populates slots, and handles drag-and-drop.
 extends Control
 
-#preload slots
+#preload inventory slot scene
 const SLOT_SCENE = preload("res://scenes/inventory_slot.tscn")
 
-# inventory item data obj TODO - this could be read from json in a disk or something else that is not defined in the code
+# inventory DATA obj TODO - this could be read from json in a DB or something else that is not defined in the code
 var inventory_data := [
 	{
 		"id": "sword",
@@ -18,6 +18,10 @@ var inventory_data := [
 		"texture": "res://entities/icon_candle.png"
 	}
 ]
+
+# mouse pointer images
+@export var mouse_hand: Texture2D = load("res://entities/hover_cursor.png")
+@export var mouse_drag_hand: Texture2D = load("res://entities/drag_cursor.png")
 
 # drag and drop
 var dragged_item = null
@@ -72,6 +76,12 @@ func _on_item_pressed(slot):
 
 # process
 func _process(delta: float) -> void:
+	# Custom pointer
+	if dragged_item:
+		Input.set_custom_mouse_cursor(mouse_drag_hand)
+	else:
+		Input.set_custom_mouse_cursor(mouse_hand)
+	# DRAGGING inventroy item
 	if dragged_item:
 		dragged_item.global_position = get_global_mouse_position() - dragged_item.size / 2
 		print("Dragging. Item position:", dragged_item.global_position, "In tree:", dragged_item.is_inside_tree())
