@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://cb31g8gf0qv2u"]
+
+[ext_resource type="Script" uid="uid://hy6nf3ip6ggg" path="res://scripts/inventory_slot.gd" id="1_bxqf6"]
+
+[sub_resource type="GDScript" id="GDScript_4v6ba"]
+script/source = "extends TextureRect
+
+func _get_drag_data(position):
+	if texture == null:
+		return null
+
+	var preview = TextureRect.new()
+	preview.texture = texture
+	preview.size = size
+	preview.expand = true
+	set_drag_preview(preview)
+
+	return {
+		\"item_texture\": texture,
+		\"source_slot\": get_parent()  # The Panel (InventorySlot)
+	}
+"
+
+[node name="InventorySlot" type="PanelContainer"]
+custom_minimum_size = Vector2(40, 40)
+script = ExtResource("1_bxqf6")
+
+[node name="ItemIcon" type="TextureRect" parent="."]
+layout_mode = 2
+script = SubResource("GDScript_4v6ba")

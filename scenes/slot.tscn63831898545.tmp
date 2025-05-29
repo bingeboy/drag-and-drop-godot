@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://cb31g8gf0qv2u"]
+
+[ext_resource type="Script" uid="uid://bcgrshn0ic7k4" path="res://scenes/slot.gd" id="1_c24ra"]
+[ext_resource type="Script" uid="uid://cmfi3370a76ei" path="res://scripts/ItemIcon.gd" id="2_ic0fu"]
+
+[node name="Slot" type="Panel"]
+script = ExtResource("1_c24ra")
+
+[node name="ItemIcon" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_ic0fu")
