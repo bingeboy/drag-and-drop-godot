@@ -8,13 +8,13 @@ const SLOT_SCENE = preload("res://scenes/inventory_slot.tscn")
 # inventory DATA obj TODO - this could be read from json in a DB or something else that is not defined in the code
 var inventory_data := [
 	{
-		"id": "sword",
+		"id": "skull",
 		"texture": "res://entities/icon_skull.png"
 	},
 	null, #empty
 	null, #empty
 	{
-		"id": "apple",
+		"id": "candle",
 		"texture": "res://entities/icon_candle.png"
 	}
 ]
@@ -99,10 +99,24 @@ func _process(delta: float) -> void:
 		var is_mouse_pressed = Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 		if is_dragging and was_mouse_pressed and not is_mouse_pressed:
 			print("Mouse released. Target slot:", target_slot.slot_index if target_slot else "none", "From slot:", dragged_from_slot.slot_index if dragged_from_slot else "none")
-			if target_slot and target_slot != dragged_from_slot:
+	
+			#deletezone 
+			var delete_zone_rect = Rect2($DeleteZone.global_position, $DeleteZone.size)
+			# check if the global mouse position is over the delete zone. 
+			if delete_zone_rect.has_point(get_global_mouse_position()):
+				#Change the value of the inventory object slot to null
+				print("Inventory Item Over Delete Zone. Item dragged from slot", dragged_from_slot,'Data: ', dragged_item_data)
+				var from_index = dragged_from_slot.slot_index
+				inventory_data[from_index] = null
+				dragged_from_slot.clear_item()
+				#signal - item dropped and slot set to -1
+				emit_signal("item_dropped", null, from_index, -1)
+
+			elif target_slot and target_slot != dragged_from_slot:
 				var from_index = dragged_from_slot.slot_index
 				var to_index = target_slot.slot_index
-				if target_slot.item:  # Swap
+				#swap items
+				if target_slot.item:
 					print("Swapping items between slot", from_index, "and slot", to_index)
 					var temp_item = target_slot.item
 					var temp_data = inventory_data[to_index]
@@ -111,14 +125,17 @@ func _process(delta: float) -> void:
 					inventory_data[to_index] = dragged_item_data
 					inventory_data[from_index] = temp_data
 					print("Swap completed. Inventory data:", inventory_data)
-				else:  # Drop into empty slot
+				# dropped in empty slot
+				else:
 					print("Dropping item from slot", from_index, "to slot", to_index)
 					target_slot.set_item(dragged_item_data["id"], load(dragged_item_data["texture"]))
 					dragged_from_slot.clear_item()
 					inventory_data[to_index] = dragged_item_data
 					inventory_data[from_index] = null
 					print("Drop completed. Inventory data:", inventory_data)
+				# singal - item was dropped with where it came from and where it now is in the dictionary
 				emit_signal("item_dropped", inventory_data[to_index]["id"], from_index, to_index)
+
 			else:
 				print("Dropped outside or on same slot", dragged_from_slot.slot_index if dragged_from_slot else "none", "Returning item")
 				if dragged_from_slot:
