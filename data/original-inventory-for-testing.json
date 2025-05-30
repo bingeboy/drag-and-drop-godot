@@ -1,0 +1,12 @@
+[
+	{
+		"id": "sword",
+		"texture": "res://entities/icon_skull.png"
+	},
+	null,
+	null,
+	{
+		"id": "apple",
+		"texture": "res://entities/icon_candle.png"
+	}
+]
