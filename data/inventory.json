@@ -1,9 +1,18 @@
 [
-  null,
   {
-	"id": "sword",
-	"texture": "res://entities/icon_skull.png"
+    "id": "potion",
+    "texture": "res://entities/icon_skull.png"
   },
-  null,
-  null
+  {
+    "id": "coin",
+    "texture": "res://entities/icon_candle.png"
+  },
+  {
+    "id": "coin",
+    "texture": "res://entities/icon_candle.png"
+  },
+  {
+    "id": "coin",
+    "texture": "res://entities/icon_candle.png"
+  }
 ]

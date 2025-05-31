@@ -17,19 +17,20 @@ grow_vertical = 2
 script = ExtResource("1_hj2ta")
 
 [node name="InventoryGrid" type="GridContainer" parent="."]
+custom_minimum_size = Vector2(80, 80)
 layout_direction = 2
 layout_mode = 0
 offset_right = 84.0
 offset_bottom = 84.0
+mouse_filter = 2
 theme_override_constants/h_separation = 2
 theme_override_constants/v_separation = 2
 columns = 2
 
 [node name="DeleteZone" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_top = 200.0
 offset_right = 80.0
-offset_bottom = 280.0
+offset_bottom = 80.0
 theme = SubResource("Theme_qw0r6")
 theme_override_styles/panel = SubResource("StyleBoxFlat_hj2ta")
 

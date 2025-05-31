@@ -1,26 +1,25 @@
-# @Description: 
-# Manages the inventory, populates slots, and handles drag-and-drop.
 extends Control
 
 #preload slots
 const SLOT_SCENE = preload("res://scenes/inventory_slot.tscn")
+const WORLD_ITEM_SCENE = preload("res://scenes/world_item.tscn")
 
 # Inventory slot configuration
-var max_slots: int = 4  # Default, will be updated from config
-var inventory_data: Array = []  # Will be loaded from JSON
-var is_inventory_dirty: bool = false  # Track if inventory has changed
+var max_slots: int = 4
+var inventory_data: Array = []
+var is_inventory_dirty: bool = false
 
 # drag and drop
 var dragged_item = null
 var dragged_from_slot = null
 var dragged_item_data = null
 var is_dragging = false
-var target_slot = null  # Track the slot under the mouse
-var was_mouse_pressed = false  # Track previous mouse state
+var target_slot = null
+var was_mouse_pressed = false
 
 # Cursor resources with type hints
-@export var hover_cursor: Texture2D = null  # Restricted to Texture2D, assignable in Inspector
-@export var drag_cursor: Texture2D = null  # Restricted to Texture2D, assignable in Inspector
+@export var hover_cursor: Texture2D = null
+@export var drag_cursor: Texture2D = null
 
 # signals
 signal item_dropped(item_id, from_slot, to_slot)
@@ -60,10 +59,10 @@ func _ready():
 			print("Loaded inventory data from JSON:", inventory_data)
 		else:
 			print("Failed to parse inventory.json:", json.get_error_message())
-			inventory_data = []  # Fallback to empty array
+			inventory_data = []
 	else:
 		print("Failed to open inventory.json")
-		inventory_data = []  # Fallback to empty array
+		inventory_data = []
 	
 	# Adjust inventory_data to match max_slots
 	while inventory_data.size() < max_slots:
@@ -134,7 +133,7 @@ func handle_world_item_drop(world_item: Node, item_id: String, texture_path: Str
 		inventory_data[to_index] = { "id": item_id, "texture": texture_path }
 		target_slot.set_item(item_id, load(texture_path))
 		emit_signal("item_dropped", item_id, -2, to_index)
-		is_inventory_dirty = true  # Mark as dirty after change
+		is_inventory_dirty = true
 
 # Method to update the number of slots during gameplay
 func set_max_slots(new_max_slots: int) -> void:
@@ -166,7 +165,7 @@ func set_max_slots(new_max_slots: int) -> void:
 		print("Slot", i, "signal connection result:", "Success" if connection_result == OK else "Failed with error code: " + str(connection_result))
 	
 	print("Inventory updated: ", max_slots, " slots. New data:", inventory_data)
-	is_inventory_dirty = true  # Mark as dirty after resizing
+	is_inventory_dirty = true
 
 # handler
 func _on_item_pressed(slot):
@@ -181,6 +180,7 @@ func _on_item_pressed(slot):
 		dragged_item = slot.item
 		dragged_from_slot = slot
 		dragged_item_data = inventory_data[slot.slot_index]
+		# Reparent the dragged item to the root
 		dragged_item.get_parent().remove_child(dragged_item)
 		call_deferred("add_child", dragged_item)
 		dragged_item.global_position = get_global_mouse_position() - dragged_item.size / 2
@@ -189,8 +189,7 @@ func _on_item_pressed(slot):
 
 # process
 func _process(delta: float) -> void:
-	# Temporary test code to save manually
-	if Input.is_action_just_pressed("ui_accept"):  # Enter key
+	if Input.is_action_just_pressed("ui_accept"):
 		save_inventory()
 	
 	if dragged_item:
@@ -220,7 +219,7 @@ func _process(delta: float) -> void:
 				print("Item dropped in DeleteZone. Deleting item from slot", dragged_from_slot.slot_index)
 				var from_index = dragged_from_slot.slot_index
 				inventory_data[from_index] = null
-				dragged_from_slot.clear_item()
+				dragged_from_slot.item = null  # Clear reference instead of remove_child
 				emit_signal("item_dropped", null, from_index, -1)
 				is_inventory_dirty = true
 			elif target_slot and target_slot != dragged_from_slot:
@@ -235,23 +234,33 @@ func _process(delta: float) -> void:
 						var temp_item = target_slot.item
 						var temp_data = inventory_data[to_index]
 						target_slot.set_item(dragged_item_data["id"], load(dragged_item_data["texture"]))
-						dragged_from_slot.set_item(temp_data["id"], load(temp_data["texture"]))
+						dragged_from_slot.item = null  # Clear reference
 						inventory_data[to_index] = dragged_item_data
 						inventory_data[from_index] = temp_data
 						print("Swap completed. Inventory data:", inventory_data)
 					else:
 						print("Dropping item from slot", from_index, "to slot", to_index)
 						target_slot.set_item(dragged_item_data["id"], load(dragged_item_data["texture"]))
-						dragged_from_slot.clear_item()
+						dragged_from_slot.item = null  # Clear reference
 						inventory_data[to_index] = dragged_item_data
 						inventory_data[from_index] = null
 						print("Drop completed. Inventory data:", inventory_data)
 					emit_signal("item_dropped", inventory_data[to_index]["id"], from_index, to_index)
 					is_inventory_dirty = true
 			else:
-				print("Dropped outside or on same slot", dragged_from_slot.slot_index if dragged_from_slot else "none", "Returning item")
-				if dragged_from_slot:
-					dragged_from_slot.set_item(dragged_item_data["id"], load(dragged_item_data["texture"]))
+				print("Dropped outside inventory slots, spawning in world")
+				var world = get_node_or_null("/root/main/world")
+				if world:
+					var new_world_item = WORLD_ITEM_SCENE.instantiate()
+					new_world_item.id = dragged_item_data["id"]
+					new_world_item.texture_path = dragged_item_data["texture"]
+					new_world_item.position = dragged_item.global_position
+					world.add_child(new_world_item)
+					var from_index = dragged_from_slot.slot_index
+					inventory_data[from_index] = null
+					dragged_from_slot.item = null  # Clear reference instead of remove_child
+					emit_signal("item_dropped", dragged_item_data["id"], from_index, -3)
+					is_inventory_dirty = true
 			
 			if dragged_item:
 				dragged_item.queue_free()
