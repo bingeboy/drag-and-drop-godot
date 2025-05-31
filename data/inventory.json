@@ -1,18 +1,18 @@
 [
   {
-    "id": "potion",
+    "id": "skull",
     "texture": "res://entities/icon_skull.png"
   },
   {
-    "id": "coin",
+    "id": "candle",
     "texture": "res://entities/icon_candle.png"
   },
   {
-    "id": "coin",
-    "texture": "res://entities/icon_candle.png"
+    "id": "orb",
+    "texture": "res://entities/icon_orb.png"
   },
   {
-    "id": "coin",
+    "id": "candle",
     "texture": "res://entities/icon_candle.png"
   }
 ]

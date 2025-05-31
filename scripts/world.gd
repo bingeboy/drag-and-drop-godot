@@ -5,8 +5,9 @@ const WORLD_ITEM_SCENE = preload("res://scenes/world_item.tscn")
 
 # Item data (for random spawning)
 var item_templates = [
-	{ "id": "potion", "texture": "res://entities/icon_skull.png" },
-	{ "id": "coin", "texture": "res://entities/icon_candle.png" },
+	{ "id": "skull", "texture": "res://entities/icon_skull.png" },
+	{ "id": "candle", "texture": "res://entities/icon_candle.png" },
+	{ "id": "orb", "texture": "res://entities/orb.png" },
 ]
 
 func _ready():
